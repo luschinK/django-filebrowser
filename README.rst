@@ -1,10 +1,27 @@
 Django FileBrowser WebP
 ==================
-.. image:: https://api.travis-ci.org/sehmaschine/django-filebrowser.svg
-    :target: https://travis-ci.org/sehmaschine/django-filebrowser
 
-.. image:: https://readthedocs.org/projects/django-filebrowser/badge/?version=latest
-    :target: http://django-filebrowser.readthedocs.org/en/latest/?badge=latest
+A little modification to Django FileBrowser to handle webp formats with versions.
+* You need *libwebp-dev* package (Ubuntu/Debian). Reinstall Pillow if it was already installed.
+
+** How to use it **
+In your FILEBROWSER_VERSIONS settings, add the 'webp' option as True to any version you want, just like this:
+
+    'big': {'verbose_name': 'Big (6 col)', 'width': 660, 'height': '', 'opts': ''},
+    'big_webp': {'verbose_name': 'Big (6 col)', 'width': 660, 'webp': True},
+    
+Then, in the template, you can use it like this (pug syntax):
+
+        picture
+            source(type="image/webp", srcset="{% version image 'big_webp' %}")
+            source(srcset="{% version image 'big' %}")
+            img(src="{% version image 'extra_large' %}")
+            
+** Known Issues **
+* The supported formats are: ".jpg",".jpeg",".png" . However, if you try to convert a .png image to .webp sometimes the image gets broken, mainly when .png has transparent layers. (These layers turn black)
+
+Original Django FileBrowser README
+===============
 
 **Media-Management with Grappelli**.
 
