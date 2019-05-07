@@ -3,7 +3,7 @@
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
-
+CONVERT_WEBP = getattr(settings, "FILEBROWSER_CONVERT_WEBP", True)
 # Main FileBrowser Directory. Relative to site.storage.location.
 # DO NOT USE A SLASH AT THE BEGINNING, DO NOT FORGET THE TRAILING SLASH AT THE END.
 DIRECTORY = getattr(settings, "FILEBROWSER_DIRECTORY", 'uploads/')
