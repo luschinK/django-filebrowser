@@ -545,7 +545,7 @@ class FileObject():
                     return version_path
                         
         except Exception as e:
-            print("-->", e)
+            pass
 
         # save version
         try:
