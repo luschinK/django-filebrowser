@@ -5,6 +5,7 @@ A little modification to Django FileBrowser to handle webp formats with versions
 
 * You need *libwebp-dev* package (Ubuntu/Debian). Reinstall Pillow if it was already installed.  
 * **Install it with pip:** *pip install git+https://github.com/luschinK/django-filebrowser-webp*
+* It will figure as you have installed django-filebrowser. You must reference to this package as you did in django-filebrowser.
 
 How to use it
 ---------------
