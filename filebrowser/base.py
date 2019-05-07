@@ -7,12 +7,13 @@ import platform
 import tempfile
 import time
 
+from django.conf import settings as USER_SETTINGS
 from django.core.files import File
 from django.utils.encoding import python_2_unicode_compatible, force_text
 from django.utils.six import string_types
 from django.utils.functional import cached_property
 
-from filebrowser.settings import EXTENSIONS, VERSIONS, ADMIN_VERSIONS, VERSIONS_BASEDIR, VERSION_QUALITY, STRICT_PIL, IMAGE_MAXBLOCK, DEFAULT_PERMISSIONS
+from filebrowser.settings import EXTENSIONS, VERSIONS, ADMIN_VERSIONS, VERSIONS_BASEDIR, VERSION_QUALITY, STRICT_PIL, IMAGE_MAXBLOCK, DEFAULT_PERMISSIONS, CONVERT_WEBP, DIRECTORY
 from filebrowser.utils import path_strip, process_image, get_modified_time
 from .namers import get_namer
 
@@ -92,6 +93,7 @@ class FileListing():
             dirs, files = self.site.storage.listdir(self.path)
             return (f for f in dirs + files)
         return []
+        
 
     def _walk(self, path, filelisting):
         """
@@ -474,12 +476,25 @@ class FileObject():
         "Generate a version"  # FIXME: version_generate for version?
         path = self.path
         options = self._get_options(version_suffix, extra_options)
-
         version_path = self.version_path(version_suffix, extra_options)
+
+        try:
+            if "webp" in options:
+                path = path
+                version_path = version_path.replace(".png",".webp").replace(".jpg",".webp").replace(".jpeg",".webp")
+                if not self.site.storage.isfile(version_path):
+                    version_path = self._generate_version(version_path, options)
+                elif get_modified_time(self.site.storage, path) > get_modified_time(self.site.storage, version_path):
+                    version_path = self._generate_version(version_path, options)
+                return FileObject(version_path, site=self.site)
+        except Exception as e:
+            pass
+        
         if not self.site.storage.isfile(version_path):
             version_path = self._generate_version(version_path, options)
         elif get_modified_time(self.site.storage, path) > get_modified_time(self.site.storage, version_path):
             version_path = self._generate_version(version_path, options)
+            
         return FileObject(version_path, site=self.site)
 
     def _generate_version(self, version_path, options):
@@ -508,6 +523,29 @@ class FileObject():
         # IF need Convert RGB
         if ext in [".jpg", ".jpeg"] and version.mode not in ("L", "RGB"):
             version = version.convert("RGB")
+           
+        try:
+            if "webp" in options:
+                if CONVERT_WEBP and ext in [".jpg",".jpeg",".png", ".webp"]:
+                    if version.mode != "RGB":
+                        version = version.convert("RGB")
+                    new_file_path = "%s/%s/%s.webp" % (USER_SETTINGS.MEDIA_ROOT, version_dir, root)
+                    version_path = "%s/%s.webp" % (version_dir, root)
+                    try:
+                        version.save(new_file_path, "WEBP", quality=VERSION_QUALITY, optimize=True)
+                    except IOError:
+                        version.save(new_file_path, "WEBP", quality=VERSION_QUALITY)
+                    
+                    if version_path != self.site.storage.get_available_name(version_path):
+                        self.site.storage.delete(version_path)
+                    self.site.storage.save(version_path, new_file_path)
+                    # set permissions
+                    if DEFAULT_PERMISSIONS is not None:
+                        os.chmod(self.site.storage.path(version_path), DEFAULT_PERMISSIONS)
+                    return version_path
+                        
+        except Exception as e:
+            print("-->", e)
 
         # save version
         try:
@@ -521,12 +559,8 @@ class FileObject():
         # set permissions
         if DEFAULT_PERMISSIONS is not None:
             os.chmod(self.site.storage.path(version_path), DEFAULT_PERMISSIONS)
+            
         return version_path
-
-    # DELETE METHODS
-    # delete()
-    # delete_versions()
-    # delete_admin_versions()
 
     def delete(self):
         "Delete FileObject (deletes a folder recursively)"
