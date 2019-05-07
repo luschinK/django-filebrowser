@@ -8,14 +8,12 @@ A little modification to Django FileBrowser to handle webp formats with versions
 In your FILEBROWSER_VERSIONS settings, add the 'webp' option as True to any version you want, just like this:
 
     'big': {'verbose_name': 'Big (6 col)', 'width': 660, 'height': '', 'opts': ''},
-    
     'big_webp': {'verbose_name': 'Big (6 col)', 'width': 660, 'webp': True},
     
 Then, in the template, you can use it like this (pug syntax):
 
         picture
             source(type="image/webp", srcset="{% version image 'big_webp' %}")
-            
             source(srcset="{% version image 'big' %}")
             img(src="{% version image 'extra_large' %}")
             
