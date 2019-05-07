@@ -12,7 +12,7 @@ setup(
     long_description=read('README.rst'),
     url='http://django-filebrowser.readthedocs.org',
     download_url='',
-    author='Patrick Kranzlmueller, Axel Swoboda (vonautomatisch)',
+    author='Patrick Kranzlmueller, Axel Swoboda (vonautomatisch), Luciano Chinke',
     author_email='office@vonautomatisch.at',
     license='BSD',
     packages=find_packages(),
