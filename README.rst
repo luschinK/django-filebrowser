@@ -18,7 +18,8 @@ Then, in the template, you can use it like this (pug syntax):
             source(srcset="{% version image 'big' %}")  
             img(src="{% version image 'extra_large' %}")  
             
-** Known Issues **
+Known Issues
+---------------
 * The supported formats are: ".jpg",".jpeg",".png" . However, if you try to convert a .png image to .webp sometimes the image gets broken, mainly when .png has transparent layers. (These layers turn black)
 
 Original Django FileBrowser README
