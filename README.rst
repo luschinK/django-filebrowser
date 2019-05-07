@@ -17,7 +17,7 @@ Then, in the template, you can use it like this (pug syntax):
         picture  
             source(type="image/webp", srcset="{% version image 'big_webp' %}")  
             source(srcset="{% version image 'big' %}")  
-            img(src="{% version image 'extra_large' %}")    
+            img(src="{% version image 'big' %}")    
             
             
 Known Issues
